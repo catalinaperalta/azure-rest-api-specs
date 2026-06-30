@@ -8,6 +8,7 @@ using Azure.Core;
 
 namespace AzureAppConfiguration;
 
+#suppress "@azure-tools/typespec-azure-core/no-enum" "Pre-existing API contract."
 @doc("Key-value fields.")
 union KeyValueFields {
   @doc("Key field.")
@@ -22,6 +23,7 @@ union KeyValueFields {
   @doc("Value field.")
   value: "value",
 
+  #suppress "@azure-tools/typespec-azure-core/casing-style"
   @doc("Last modified field.")
   last_modified: "last_modified",
 
@@ -37,7 +39,7 @@ union KeyValueFields {
   string,
 }
 
-@doc("Snapshot fields.")
+#suppress "@azure-tools/typespec-azure-core/documentation-required" ""
 union SnapshotFields {
   @doc("Name field.")
   name: "name",
