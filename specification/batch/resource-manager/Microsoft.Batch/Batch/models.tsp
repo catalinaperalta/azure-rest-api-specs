@@ -16,6 +16,7 @@ namespace Microsoft.Batch;
 /**
  * The container technology to be used.
  */
+#suppress "@azure-tools/typespec-azure-core/no-enum" "I need to use an enum due to..."
 union ContainerType {
   string,
 

@@ -29,6 +29,7 @@ model BatchAccount
   identity?: BatchAccountIdentity;
 }
 
+#suppress "@azure-tools/typespec-azure-core/documentation-required"
 @armResourceOperations
 @tag("BatchAccount")
 interface BatchAccounts {
