@@ -165,7 +165,7 @@ union CreatedByType {
 /**
  * The authentication mode which the Batch service will use to manage the auto-storage account.
  */
-#suppress "@azure-tools/typespec-azure-core/no-enum" "legacy design"
+#suppress "@azure-tools/typespec-azure-core/no-enum" "legacy design - updated rationale for reviewer"
 enum AutoStorageAuthenticationMode {
   /**
    * The Batch service will authenticate requests to auto-storage using storage account keys.
