@@ -14,7 +14,7 @@ using Versioning;
 namespace Microsoft.Batch;
 
 /**
- * The container technology to be used.
+ * The container technology to be used for the Batch pool.
  */
 union ContainerType {
   string,
