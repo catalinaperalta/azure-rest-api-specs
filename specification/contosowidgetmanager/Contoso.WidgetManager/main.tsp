@@ -16,6 +16,7 @@ using Azure.Core;
 namespace Azure.Contoso.WidgetManager;
 
 @doc("Versions info.")
+#suppress "@azure-tools/typespec-azure-core/no-enum" "test: checked rule suppression with justification for workflow validation"
 enum Versions {
   @doc("The 2022-11-01-preview version.")
   v2022_11_01_Preview: "2022-11-01-preview",
