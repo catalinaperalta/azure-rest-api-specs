@@ -56,7 +56,7 @@ export function renderMarkdownSummary(result, options) {
         lines.push("");
         lines.push("The suggested fix is guidance only and has **not** been applied in this pull request.");
         lines.push("");
-        lines.push("| Change | Target | Source | Version comparison | Suggested fix (not yet in PR) |");
+        lines.push("| Change | Target | Source | Version comparison | Suggested fix (ONLY add if break is approved) |");
         lines.push("|--------|--------|--------|--------------------|--------------------------------|");
         const suppressionBlocks = [];
         for (const finding of errors) {
