@@ -93,41 +93,20 @@ jobs:
             folder_md="${folder//\//_}-versioning-report.md"
             folder_json="${folder//\//_}-versioning-report.json"
 
-            # Save the head (PR) version of the spec folder
-            cp -r "$folder" "${folder}.head-backup"
-
-            # Check out the base version in-place (same repo root = same node_modules)
-            git checkout "$BASE_SHA" -- "$folder" 2>/dev/null
-            base_exists=$?
-
-            # Restore head version
-            rm -rf "$folder"
-            mv "${folder}.head-backup" "$folder"
-
-            base_flag=()
-            if [[ $base_exists -eq 0 ]]; then
-              # The base version was successfully checked out — save it
-              # alongside the head in the repo root so both compile identically
-              base_folder="${folder}.base"
-              git checkout "$BASE_SHA" -- "$folder" 2>/dev/null
-              mv "$folder" "$base_folder"
-              git checkout HEAD -- "$folder" 2>/dev/null
-              base_flag=(--base "$base_folder")
-            fi
-
+            # Let the CLI check out the base revision itself, into an isolated
+            # git worktree scoped via sparse-checkout to just this folder — this
+            # replaces a fragile hand-rolled checkout/restore dance that left
+            # the repo's index inconsistent with the working tree for the
+            # remainder of the job (see eng/tools/typespec-breaking-change
+            # git-checkout.ts for the shared, unit-tested implementation).
             node eng/tools/typespec-breaking-change/src/cli/cli.js "$folder" \
-              "${base_flag[@]}" \
+              --base-ref "$BASE_SHA" \
               --phase same-version \
               --report-title "TypeSpec Versioning Change Analysis" \
               --json-output "$folder_json" \
               --markdown-output "$folder_md" \
               "${annotations_flag[@]}" \
               --fail-on-breaking || has_errors=1
-
-            # Clean up base copy
-            if [[ -d "${folder}.base" ]]; then
-              rm -rf "${folder}.base"
-            fi
 
             if [[ -f "$folder_md" ]]; then
               cat "$folder_md" >> "versioning-change-comment.md"
