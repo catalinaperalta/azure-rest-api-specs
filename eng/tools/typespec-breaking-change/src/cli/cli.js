@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { resolve } from "path";
+import { resolve, relative, dirname } from "path";
 import { writeFile, mkdir } from "fs/promises";
-import { dirname } from "path";
 import { compileService } from "./compile.js";
+import { checkoutRevision, getRepoRoot, mapPathIntoWorktree } from "./git-checkout.js";
 import { analyzeBaseAndHead, analyzeProgram } from "../pipeline/orchestrator.js";
 import { formatConsoleReport } from "../reporting/reporter-console.js";
 import { formatGithubReport } from "../reporting/reporter-github.js";
@@ -26,6 +26,9 @@ export function parseArgs(args) {
             case "--base":
             case "-b":
                 options.base = args[++i];
+                break;
+            case "--base-ref":
+                options.baseRef = args[++i];
                 break;
             case "--format":
             case "-f":
@@ -86,6 +89,9 @@ Arguments:
 Options:
   -e, --entry <path>         Path to the head TypeSpec entry point (file-to-file mode)
   -b, --base <path>          Path to the base TypeSpec entry point (file-to-file comparison)
+  --base-ref <commitish>     Git revision (SHA, branch, tag) to check out as the base for
+                             comparison, instead of an explicit --base path. Checked out into
+                             an isolated, disposable git worktree. Ignored if --base is set.
   -f, --format <format>      Console output format: console, json, github (default: console)
   --json-output <path>       Write JSON report to file
   --markdown-output <path>   Write Markdown summary to file
@@ -108,6 +114,9 @@ Examples:
 
   # File-to-file comparison (Phase A + B)
   typespec-breaking-change --entry ./head/main.tsp --base ./base/main.tsp
+
+  # Compare against a base revision resolved directly from git (no manual checkout)
+  typespec-breaking-change ./specification/widget/Microsoft.Widget/Widget --base-ref origin/main
 
   # CI mode: JSON + Markdown output, fail on breaking
   typespec-breaking-change ./spec --json-output report.json --markdown-output report.md --fail-on-breaking
@@ -156,7 +165,25 @@ export async function main(args) {
         phase: options.phase,
         log: (message) => console.log(message),
     };
+    let baseCheckoutCleanup;
     try {
+        // Resolve --base-ref into a concrete --base path by checking the
+        // revision out into an isolated git worktree. Explicit --base always
+        // wins if both are provided.
+        if (options.baseRef && !options.base) {
+            const entryPath = resolve(options.entry);
+            const repoRoot = await getRepoRoot(entryPath);
+            // Scope the worktree checkout to just the entry folder via sparse
+            // checkout — checking out the full repository at the base revision is
+            // far too slow for large monorepos (e.g. azure-rest-api-specs) where
+            // only one spec folder's history actually needs to be compared.
+            const sparsePath = relative(repoRoot, entryPath);
+            const { worktreePath, cleanup } = await checkoutRevision(options.baseRef, entryPath, {
+                sparsePaths: [sparsePath],
+            });
+            baseCheckoutCleanup = cleanup;
+            options.base = await mapPathIntoWorktree(entryPath, entryPath, worktreePath);
+        }
         let result;
         if (options.base) {
             // Two-program comparison (Phase A + Phase B)
@@ -215,6 +242,11 @@ export async function main(args) {
         const message = error instanceof Error ? error.message : String(error);
         console.error(`Analysis failed: ${message}`);
         return 2;
+    }
+    finally {
+        if (baseCheckoutCleanup) {
+            await baseCheckoutCleanup();
+        }
     }
 }
 /**
