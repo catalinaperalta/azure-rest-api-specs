@@ -1,10 +1,12 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/versioning";
 import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-azure-resource-manager";
 
 using TypeSpec.Rest;
 using TypeSpec.Http;
+using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
 
@@ -18,10 +20,8 @@ model Employee is TrackedResource<EmployeeProperties> {
 /** Employee properties */
 model EmployeeProperties {
   /** Age of employee */
-  age?: int32;
-
-  /** City of employee */
-  city?: string;
+  @madeRequired(Versions.v2022_01_01)
+  age: int32;
 
   /** Profile of employee */
   @encode("base64url")
