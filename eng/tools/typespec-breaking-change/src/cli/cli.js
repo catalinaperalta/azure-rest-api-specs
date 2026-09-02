@@ -81,6 +81,9 @@ export function parseArgs(args) {
             case "--report-title":
                 options.reportTitle = args[++i];
                 break;
+            case "--omit-title":
+                options.omitTitle = true;
+                break;
             case "--help":
             case "-h":
                 printUsage();
@@ -119,6 +122,10 @@ Options:
   -s, --service <name>       Filter to a specific service name
   --show-suppressed          Include suppressed findings in output
   --show-ignored             Include ignored findings in output
+  --report-title <title>     Custom H2 title for the Markdown summary (default: "Breaking Change Analysis")
+  --omit-title               Omit the H2 title line from the Markdown summary. Use when a
+                              caller (e.g. a CI workflow looping over multiple folders) prints
+                              the title once itself, ahead of per-folder sections.
   -h, --help                 Show this help message
 
 Exit codes:
@@ -266,6 +273,7 @@ export async function main(args) {
                 workspacePath: process.env.GITHUB_WORKSPACE,
                 violationsReferenceUrl: process.env.VIOLATIONS_REFERENCE_URL,
                 reportTitle: options.reportTitle,
+                omitTitle: options.omitTitle,
             };
             const mdContent = renderMarkdownSummary(result, mdOptions);
             await writeFile(mdPath, mdContent);

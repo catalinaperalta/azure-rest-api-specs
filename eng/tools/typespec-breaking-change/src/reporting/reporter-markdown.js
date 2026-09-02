@@ -10,13 +10,20 @@ export function renderMarkdownSummary(result, options) {
     const suppressed = result.findings.filter((f) => f.suppressed);
     const lines = [];
     const title = options?.reportTitle ?? "Breaking Change Analysis";
-    // Header
-    lines.push(`## ${title}`);
-    lines.push("");
-    // Spec path context
+    // Header. Skippable via omitTitle for callers (e.g. a CI workflow looping
+    // over several impacted folders in the same phase) that print the H2
+    // title once themselves, so it isn't repeated per folder in the combined
+    // PR comment.
+    if (!options?.omitTitle) {
+        lines.push(`## ${title}`);
+        lines.push("");
+    }
+    // Spec path context. Rendered as an H3 subheading (not another H2) so
+    // multiple folders analyzed under the same phase/title read as
+    // subsections of one report instead of separate top-level reports.
     if (options?.specPaths && options.specPaths.length > 0) {
         for (const sp of options.specPaths) {
-            lines.push(`**Spec:** \`${sp}\``);
+            lines.push(`### ${sp}`);
         }
         lines.push("");
     }
@@ -56,7 +63,7 @@ export function renderMarkdownSummary(result, options) {
         lines.push("");
         lines.push("The suggested fix is guidance only and has **not** been applied in this pull request.");
         lines.push("");
-        lines.push("| Change | Target | Source | Version comparison | Suggested fix (ONLY add if break is approved) |");
+        lines.push("| Change | Target | Source | Version comparison | Suggested Fix |");
         lines.push("|--------|--------|--------|--------------------|--------------------------------|");
         const suppressionBlocks = [];
         for (const finding of errors) {
@@ -116,7 +123,7 @@ export function renderMarkdownSummary(result, options) {
         lines.push("| Service | Version Pair | Phase | Result |");
         lines.push("|---------|-------------|-------|--------|");
         for (const comparison of result.summary.versionComparisons) {
-            lines.push(`| ${esc(comparison.serviceName)} | ${esc(formatComparisonPair(comparison.phase, comparison.baseVersion, comparison.headVersion))} | ${esc(comparison.phase)} | ${formatComparisonResult(comparison.findingCount)} |`);
+            lines.push(`| ${esc(comparison.serviceName)} | ${esc(formatComparisonPair(comparison.phase, comparison.baseVersion, comparison.headVersion))} | ${formatPhaseLabel(comparison.phase)} | ${formatComparisonResult(comparison.findingCount)} |`);
         }
         lines.push("");
         lines.push("</details>");
@@ -249,4 +256,8 @@ function formatComparisonResult(findingCount) {
     return findingCount === 0
         ? "✅ No changes"
         : `❌ ${findingCount} finding${findingCount === 1 ? "" : "s"}`;
+}
+/** Format a comparison phase as a human-readable label for the Version Comparisons table. */
+function formatPhaseLabel(phase) {
+    return phase === "same-version" ? "Same-version" : "Cross-version";
 }
