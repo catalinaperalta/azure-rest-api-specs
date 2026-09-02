@@ -1,4 +1,4 @@
-name: "TypeSpec Versioning Change - Analyze Code"
+name: "TypeSpec Unversioned Change - Analyze Code"
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   typespec-versioning-change:
-    name: "TypeSpec Versioning Change - Analyze Code"
+    name: "TypeSpec Unversioned Change - Analyze Code"
     runs-on: ubuntu-24.04
 
     steps:
@@ -64,7 +64,7 @@ jobs:
             echo "approved=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run TypeSpec Versioning Change analysis
+      - name: Run TypeSpec Unversioned Change analysis
         id: typespec-versioning-change-analyze
         shell: bash
         env:
@@ -74,7 +74,7 @@ jobs:
         run: |
           if [[ ! -s typespec-folders.txt ]]; then
             {
-              echo "## TypeSpec Versioning Change Analysis"
+              echo "## Unversioned Change Analysis"
               echo
               echo "No impacted TypeSpec folders were found."
             } > "$GITHUB_STEP_SUMMARY"
@@ -90,7 +90,11 @@ jobs:
           fi
 
           has_errors=0
-          > "versioning-change-comment.md"
+          # Print the phase title once, since each per-folder CLI invocation
+          # below is run with --omit-title so folders read as subsections of
+          # one report instead of each repeating their own "## ..." heading.
+          echo "## Unversioned Change Analysis" > "versioning-change-comment.md"
+          echo "" >> "versioning-change-comment.md"
 
           for folder in "${spec_folders[@]}"; do
             folder_md="${folder//\//_}-versioning-report.md"
@@ -105,7 +109,8 @@ jobs:
             node eng/tools/typespec-breaking-change/src/cli/cli.js "$folder" \
               --base-ref "$BASE_SHA" \
               --phase same-version \
-              --report-title "TypeSpec Versioning Change Analysis" \
+              --report-title "Unversioned Change Analysis" \
+              --omit-title \
               --json-output "$folder_json" \
               --markdown-output "$folder_md" \
               "${annotations_flag[@]}" \
