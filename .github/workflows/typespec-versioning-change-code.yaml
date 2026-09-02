@@ -1,4 +1,4 @@
-name: "TypeSpec Versioning Change - Analyze Code"
+name: "TypeSpec Unversioned Change - Analyze Code"
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   typespec-versioning-change:
-    name: "TypeSpec Versioning Change - Analyze Code"
+    name: "TypeSpec Unversioned Change - Analyze Code"
     runs-on: ubuntu-24.04
 
     steps:
@@ -64,7 +64,7 @@ jobs:
             echo "approved=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run TypeSpec Versioning Change analysis
+      - name: Run TypeSpec Unversioned Change analysis
         id: typespec-versioning-change-analyze
         shell: bash
         env:

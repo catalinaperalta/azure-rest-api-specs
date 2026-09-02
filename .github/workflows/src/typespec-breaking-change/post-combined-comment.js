@@ -2,7 +2,7 @@
   Entry point for the single, consolidated "TypeSpec Breaking Change Analysis"
   pull request comment, run from typespec-breaking-change-comment.yaml on:
     - workflow_run:completed of "TypeSpec Breaking Change - Analyze Code" (Phase B)
-    - workflow_run:completed of "TypeSpec Versioning Change - Analyze Code" (Phase A)
+    - workflow_run:completed of "TypeSpec Unversioned Change - Analyze Code" (Phase A)
 
   Either analyze workflow completing triggers this: it downloads BOTH phases'
   latest rendered-markdown artifacts for the same head_sha (best-effort --
