@@ -3,7 +3,7 @@
   Change Analysis" pull request comment.
 
   Historically, the "TypeSpec Breaking Change - Analyze Code" (Phase B,
-  cross-version) and "TypeSpec Versioning Change - Analyze Code" (Phase A,
+  cross-version) and "TypeSpec Unversioned Change - Analyze Code" (Phase A,
   same-version) workflows each posted their own separate sticky comment. This
   was "correct" by design (each phase has its own independent approval label
   and required check, still true today -- see typespec-breaking-change-status.yaml
@@ -28,7 +28,8 @@ import { downloadArtifactText } from "../typespec-suppressions/suppressions-comm
  */
 
 export const TYPESPEC_BREAKING_CHANGE_WORKFLOW_NAME = "TypeSpec Breaking Change - Analyze Code";
-export const TYPESPEC_VERSIONING_CHANGE_WORKFLOW_NAME = "TypeSpec Versioning Change - Analyze Code";
+export const TYPESPEC_VERSIONING_CHANGE_WORKFLOW_NAME =
+  "TypeSpec Unversioned Change - Analyze Code";
 
 export const BREAKING_CHANGE_COMMENT_ARTIFACT_NAME = "typespec-breaking-change-comment-md";
 export const VERSIONING_CHANGE_COMMENT_ARTIFACT_NAME = "typespec-versioning-change-comment-md";

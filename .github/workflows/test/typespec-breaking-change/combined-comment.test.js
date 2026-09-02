@@ -27,30 +27,30 @@ describe("renderCombinedComment", () => {
 
   it("returns only the versioning change section when breaking change is absent", () => {
     const body = renderCombinedComment({
-      versioningChangeMarkdown: "## TypeSpec Versioning Change Analysis\n\nAll good.",
+      versioningChangeMarkdown: "## Unversioned Change Analysis\n\nAll good.",
     });
-    expect(body).toBe("## TypeSpec Versioning Change Analysis\n\nAll good.");
+    expect(body).toBe("## Unversioned Change Analysis\n\nAll good.");
   });
 
   it("joins both sections with a divider when both are present", () => {
     const body = renderCombinedComment({
       breakingChangeMarkdown: "## Breaking Change Analysis\n\nFinding A.",
-      versioningChangeMarkdown: "## TypeSpec Versioning Change Analysis\n\nFinding B.",
+      versioningChangeMarkdown: "## Unversioned Change Analysis\n\nFinding B.",
     });
     expect(body).toBe(
       "## Breaking Change Analysis\n\nFinding A.\n\n---\n\n" +
-        "## TypeSpec Versioning Change Analysis\n\nFinding B.",
+        "## Unversioned Change Analysis\n\nFinding B.",
     );
   });
 
   it("trims trailing/leading whitespace from each section", () => {
     const body = renderCombinedComment({
       breakingChangeMarkdown: "\n\n## Breaking Change Analysis\n\nFinding A.\n\n",
-      versioningChangeMarkdown: "  ## TypeSpec Versioning Change Analysis\n\nFinding B.  ",
+      versioningChangeMarkdown: "  ## Unversioned Change Analysis\n\nFinding B.  ",
     });
     expect(body).toBe(
       "## Breaking Change Analysis\n\nFinding A.\n\n---\n\n" +
-        "## TypeSpec Versioning Change Analysis\n\nFinding B.",
+        "## Unversioned Change Analysis\n\nFinding B.",
     );
   });
 });

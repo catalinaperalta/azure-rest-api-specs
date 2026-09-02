@@ -14,7 +14,7 @@ vi.mock("../../src/typespec-breaking-change/combined-comment.js", () => ({
   BREAKING_CHANGE_COMMENT_ARTIFACT_NAME: "typespec-breaking-change-comment-md",
   VERSIONING_CHANGE_COMMENT_ARTIFACT_NAME: "typespec-versioning-change-comment-md",
   TYPESPEC_BREAKING_CHANGE_WORKFLOW_NAME: "TypeSpec Breaking Change - Analyze Code",
-  TYPESPEC_VERSIONING_CHANGE_WORKFLOW_NAME: "TypeSpec Versioning Change - Analyze Code",
+  TYPESPEC_VERSIONING_CHANGE_WORKFLOW_NAME: "TypeSpec Unversioned Change - Analyze Code",
   COMBINED_COMMENT_IDENTIFIER: "TypeSpecBreakingAndVersioningChangeAnalysis",
   downloadLatestCommentMarkdown: vi.fn(),
   renderCombinedComment: vi.fn(),
@@ -80,7 +80,7 @@ describe("postCombinedBreakingChangeComment", () => {
   it("downloads both phases' artifacts and posts the combined comment", async () => {
     vi.mocked(downloadLatestCommentMarkdown)
       .mockResolvedValueOnce("## Breaking Change Analysis\n\nFinding A.")
-      .mockResolvedValueOnce("## TypeSpec Versioning Change Analysis\n\nFinding B.");
+      .mockResolvedValueOnce("## Unversioned Change Analysis\n\nFinding B.");
     vi.mocked(renderCombinedComment).mockReturnValue("COMBINED BODY");
 
     await postCombinedBreakingChangeComment(args(createMockGithub()));
@@ -100,12 +100,12 @@ describe("postCombinedBreakingChangeComment", () => {
       "test-owner",
       "test-repo",
       "abc123",
-      "TypeSpec Versioning Change - Analyze Code",
+      "TypeSpec Unversioned Change - Analyze Code",
       "typespec-versioning-change-comment-md",
     );
     expect(renderCombinedComment).toHaveBeenCalledWith({
       breakingChangeMarkdown: "## Breaking Change Analysis\n\nFinding A.",
-      versioningChangeMarkdown: "## TypeSpec Versioning Change Analysis\n\nFinding B.",
+      versioningChangeMarkdown: "## Unversioned Change Analysis\n\nFinding B.",
     });
     expect(commentOrUpdate).toHaveBeenCalledWith(
       expect.anything(),
