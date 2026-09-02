@@ -74,7 +74,7 @@ jobs:
         run: |
           if [[ ! -s typespec-folders.txt ]]; then
             {
-              echo "## TypeSpec Versioning Change Analysis"
+              echo "## Unversioned Change Analysis"
               echo
               echo "No impacted TypeSpec folders were found."
             } > "$GITHUB_STEP_SUMMARY"
@@ -93,7 +93,7 @@ jobs:
           # Print the phase title once, since each per-folder CLI invocation
           # below is run with --omit-title so folders read as subsections of
           # one report instead of each repeating their own "## ..." heading.
-          echo "## TypeSpec Versioning Change Analysis" > "versioning-change-comment.md"
+          echo "## Unversioned Change Analysis" > "versioning-change-comment.md"
           echo "" >> "versioning-change-comment.md"
 
           for folder in "${spec_folders[@]}"; do
@@ -109,7 +109,7 @@ jobs:
             node eng/tools/typespec-breaking-change/src/cli/cli.js "$folder" \
               --base-ref "$BASE_SHA" \
               --phase same-version \
-              --report-title "TypeSpec Versioning Change Analysis" \
+              --report-title "Unversioned Change Analysis" \
               --omit-title \
               --json-output "$folder_json" \
               --markdown-output "$folder_md" \
