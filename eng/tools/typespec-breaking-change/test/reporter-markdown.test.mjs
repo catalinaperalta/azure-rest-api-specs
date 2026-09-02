@@ -88,7 +88,7 @@ describe("renderMarkdownSummary", () => {
 
     assert.match(report, /Breaking API changes must be avoided and should be rare/);
     assert.match(report, /Breaking Changes Requiring Action/);
-    assert.match(report, /Suggested fix \(ONLY add if break is approved\)/);
+    assert.match(report, /Suggested Fix/);
     assert.match(report, /employee\.tsp#L24/);
     assert.match(report, /2024-01-01 → 2025-01-01/);
     assert.doesNotMatch(report, /\| `body\.properties\.properties\.city` \|/);
@@ -113,6 +113,6 @@ describe("renderMarkdownSummary", () => {
     assert.match(report, /Suppressed Breaking Changes Requiring Review/);
     assert.match(report, /does not make an API change acceptable/);
     assert.match(report, /Justification in PR/);
-    assert.doesNotMatch(report, /Suggested fix \(ONLY add if break is approved\)/);
+    assert.doesNotMatch(report, /Suggested Fix/);
   });
 });

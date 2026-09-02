@@ -73,7 +73,7 @@ jobs:
         run: |
           if [[ ! -s typespec-folders.txt ]]; then
             {
-              echo "## TypeSpec Breaking Change Analysis"
+              echo "## Breaking Change Analysis"
               echo
               echo "No impacted TypeSpec folders were found."
             } > "$GITHUB_STEP_SUMMARY"
@@ -90,13 +90,18 @@ jobs:
 
           has_errors=0
           all_json_results=()
-          > "breaking-change-comment.md"
+          # Print the phase title once, since each per-folder CLI invocation
+          # below is run with --omit-title so folders read as subsections of
+          # one report instead of each repeating their own "## ..." heading.
+          echo "## Breaking Change Analysis" > "breaking-change-comment.md"
+          echo "" >> "breaking-change-comment.md"
 
           for folder in "${spec_folders[@]}"; do
             folder_json="${folder//\//_}-report.json"
             folder_md="${folder//\//_}-report.md"
             node eng/tools/typespec-breaking-change/src/cli/cli.js "$folder" \
               --phase cross-version \
+              --omit-title \
               --json-output "$folder_json" \
               --markdown-output "$folder_md" \
               "${annotations_flag[@]}" \

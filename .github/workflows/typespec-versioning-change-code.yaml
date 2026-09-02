@@ -90,7 +90,11 @@ jobs:
           fi
 
           has_errors=0
-          > "versioning-change-comment.md"
+          # Print the phase title once, since each per-folder CLI invocation
+          # below is run with --omit-title so folders read as subsections of
+          # one report instead of each repeating their own "## ..." heading.
+          echo "## TypeSpec Versioning Change Analysis" > "versioning-change-comment.md"
+          echo "" >> "versioning-change-comment.md"
 
           for folder in "${spec_folders[@]}"; do
             folder_md="${folder//\//_}-versioning-report.md"
@@ -106,6 +110,7 @@ jobs:
               --base-ref "$BASE_SHA" \
               --phase same-version \
               --report-title "TypeSpec Versioning Change Analysis" \
+              --omit-title \
               --json-output "$folder_json" \
               --markdown-output "$folder_md" \
               "${annotations_flag[@]}" \
