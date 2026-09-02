@@ -97,7 +97,7 @@ describe("renderMarkdownSummary", () => {
   it("renders the same table structure with versioning-specific guidance", () => {
     const report = renderMarkdownSummary(createResult("same-version"), {
       ...options,
-      reportTitle: "TypeSpec Versioning Change Analysis",
+      reportTitle: "Unversioned Change Analysis",
     });
 
     assert.match(report, /Existing API versions must remain immutable/);
