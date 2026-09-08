@@ -1,12 +1,15 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/versioning";
 import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-azure-resource-manager";
 
 using TypeSpec.Rest;
 using TypeSpec.Http;
+using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
+using Azure.BreakingChange;
 
 namespace Microsoft.Contoso;
 
@@ -16,12 +19,18 @@ model Employee is TrackedResource<EmployeeProperties> {
 }
 
 /** Employee properties */
+@approvedUnversionedChange(
+  "Demo: city was intentionally removed in a same-version edit to exercise the Phase A unversioned-change approval workflow.",
+  #{ kind: "ResourcePropertyRemoved", path: "city" }
+)
 model EmployeeProperties {
   /** Age of employee */
-  age?: int32;
-
-  /** City of employee */
-  city?: string;
+  @madeRequired(Versions.v2022_01_01)
+  @approvedBreakingChange(
+    "Demo: age was intentionally made required in 2022-01-01 to exercise the Phase B breaking-change approval workflow.",
+    #{ kind: "ResourcePropertyMadeRequired" }
+  )
+  age: int32;
 
   /** Profile of employee */
   @encode("base64url")
