@@ -29,6 +29,7 @@ model BatchAccount
   identity?: BatchAccountIdentity;
 }
 
+#suppress "@azure-tools/typespec-azure-core/documentation-required"
 @armResourceOperations
 @tag("BatchAccount")
 interface BatchAccounts {
@@ -40,7 +41,7 @@ interface BatchAccounts {
   /**
    * Creates a new Batch account with the specified parameters. Existing accounts cannot be updated with this API and should instead be updated with the Update Batch Account API.
    */
-  #suppress "@azure-tools/typespec-azure-resource-manager/arm-put-operation-response-codes" "Legacy behavior"
+  #suppress "@azure-tools/typespec-azure-resource-manager/arm-put-operation-response-codes" "Legacy behavior - change description"
   create is Legacy.CreateOrReplaceAsync<
     BatchAccount,
     Request = BatchAccountCreateParameters,
