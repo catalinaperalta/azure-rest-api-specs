@@ -42,6 +42,7 @@ function createMockGithubImpl() {
         downloadArtifact: vi.fn().mockResolvedValue({ data: new ArrayBuffer(0) }),
         listJobsForWorkflowRun: vi.fn().mockResolvedValue({ data: [] }),
         listWorkflowRunArtifacts: vi.fn().mockResolvedValue({ data: { artifacts: [] } }),
+        listWorkflowRuns: vi.fn().mockResolvedValue({ data: { workflow_runs: [] } }),
         listWorkflowRunsForRepo: vi.fn().mockResolvedValue({ data: { workflow_runs: [] } }),
       },
       checks: {
@@ -75,6 +76,9 @@ function createMockGithubImpl() {
       },
       search: {
         issuesAndPullRequests: vi.fn(),
+      },
+      teams: {
+        getMembershipForUserInOrg: vi.fn(),
       },
     },
     request: {

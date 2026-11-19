@@ -1,0 +1,21 @@
+{
+  "title": "Reads the non-shipping ARM compatibility fixture",
+  "operationId": "Widgets_Get",
+  "parameters": {
+    "api-version": "2026-01-01",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "example",
+    "widgetName": "example"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/example/providers/Microsoft.ContosoBreakingChanges/widgets/example",
+        "name": "example",
+        "type": "Microsoft.ContosoBreakingChanges/widgets",
+        "location": "westus",
+        "properties": { "city": "Seattle", "mode": "fast", "provisioningState": "Succeeded" }
+      }
+    }
+  }
+}

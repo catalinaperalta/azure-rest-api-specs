@@ -1,0 +1,39 @@
+name: "TypeSpec Breaking Change - Publish Results"
+
+on: # zizmor: ignore[dangerous-triggers] Only trusted default-branch code runs; artifacts are parsed as data.
+  workflow_run:
+    workflows: ["TypeSpec Breaking Change - Analyze Code"]
+    types: [completed]
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions: {}
+
+concurrency:
+  group: typespec-bc-demo-publish-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+      pull-requests: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Install trusted workflow dependencies
+        uses: ./.github/actions/install-deps-github-script
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { default: postResults } =
+              await import('${{ github.workspace }}/.github/workflows/src/typespec-breaking-change-demo/post-results.ts');
+            await postResults({ github, context, core });
