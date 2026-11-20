@@ -21,6 +21,15 @@ enum Versions {
 
   /** Subsequent stable contract with the same wire shape. */
   v2: "2026-06-01",
+
+  /** Scenario version 2026-08-01-preview. */
+  v3: "2026-08-01-preview",
+
+  /** Scenario version 2026-09-01-preview. */
+  v4: "2026-09-01-preview",
+
+  /** Scenario version 2026-10-01. */
+  v5: "2026-10-01",
 }
 
 /** Creates a widget using an independently modeled request. */
