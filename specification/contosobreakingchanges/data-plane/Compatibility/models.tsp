@@ -6,10 +6,16 @@ model WidgetInput {
   name: string;
 
   /** Requested processing mode. */
-  mode: "fast" | "safe";
+  @TypeSpec.Versioning.typeChangedFrom(Versions.v3, "fast" | "safe")
+  mode: "fast";
 
   /** Optional caller note. */
-  note?: string;
+  @TypeSpec.Versioning.madeRequired(Versions.v3)
+  note: string;
+
+  /** Required new-version credential. */
+  @TypeSpec.Versioning.added(Versions.v3)
+  token: string;
 }
 
 /** Body returned only in responses. */
