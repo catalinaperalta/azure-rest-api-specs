@@ -7,7 +7,7 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.Core;
 
-/** Non-shipping HTTP compatibility test service. */
+/** Non-shipping HTTP compatibility test service with clarified documentation. */
 @service(#{ title: "Contoso breaking change demo" })
 @server("https://example.com", "Non-shipping compatibility fixture.")
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-api-key">)
