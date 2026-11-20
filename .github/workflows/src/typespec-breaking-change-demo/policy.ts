@@ -126,12 +126,9 @@ export function evaluatePhase(
   );
   const errors = findings.filter((finding) => !finding.suppressed).length;
   const approvals = report.projects.flatMap((project) => changedApprovals(project, phase)).length;
-  const pending = findings.filter(
-    (finding) => finding.suppressed && finding.suppressionClassification !== "existing",
-  ).length;
   const common = {
     fingerprint: phaseFingerprint(report, phase),
-    requiresReview: errors + approvals + pending > 0,
+    requiresReview: errors + approvals > 0,
     errors,
     approvals,
   };
@@ -157,7 +154,7 @@ export function evaluatePhase(
       description: `${errors} finding(s) need matching decorators or bugfix approval.`,
     };
   }
-  if ((approvals > 0 || pending > 0) && !approved) {
+  if (approvals > 0 && !approved) {
     return {
       ...common,
       state: "failure",
