@@ -48,6 +48,14 @@ describe("TypeSpec demo approval policy", () => {
     const value = report();
     value.projects[0].findings[0].suppressed = true;
     value.projects[0].findings[0].suppressionClassification = "new";
+    value.projects[0].approvals.push({
+      classification: "new",
+      head: {
+        decorator: "approvedBreakingChange",
+        anchorIdentity: "Contoso.Widget.city",
+        reason: "Intentional fixture removal.",
+      },
+    });
     expect(evaluatePhase(value, "cross-version", false, false).state).toBe("failure");
     expect(evaluatePhase(value, "cross-version", true, false).state).toBe("success");
   });
@@ -56,6 +64,21 @@ describe("TypeSpec demo approval policy", () => {
     const value = report();
     value.projects[0].findings[0].suppressed = true;
     value.projects[0].findings[0].suppressionClassification = "existing";
+    expect(evaluatePhase(value, "cross-version", false, false).state).toBe("success");
+  });
+
+  it("uses source inventory rather than projection-duplicated finding classifications", () => {
+    const value = report();
+    value.projects[0].findings[0].suppressed = true;
+    value.projects[0].findings[0].suppressionClassification = "new";
+    value.projects[0].approvals.push({
+      classification: "existing",
+      head: {
+        decorator: "approvedBreakingChange",
+        anchorIdentity: "Contoso.Widget.city",
+        reason: "Previously reviewed removal.",
+      },
+    });
     expect(evaluatePhase(value, "cross-version", false, false).state).toBe("success");
   });
 

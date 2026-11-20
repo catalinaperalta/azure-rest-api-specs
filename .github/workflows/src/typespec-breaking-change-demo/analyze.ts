@@ -34,6 +34,9 @@ interface Upstream {
   }[];
   analyzeBaseAndHead(base: Program, head: Program): Analysis;
   analyzeProgram(head: Program): Analysis;
+  compareSuppressions(base: Program, head: Program): { classifications: ApprovalChange[] };
+  buildSuppressionInventory(program: Program): unknown[];
+  compareInventories(base: unknown[], head: unknown[]): { classifications: ApprovalChange[] };
   formatJsonReport(result: Analysis): string;
   renderMarkdownSummary(result: Analysis, options: Record<string, unknown>): string;
 }
@@ -195,6 +198,7 @@ export async function analyze(
         await linkToolchain(head, upstream);
         const headProgram = await compile(head);
         let result: Analysis;
+        let approvals: ApprovalChange[];
         if (await exists(join(before, "main.tsp"))) {
           await linkToolchain(before, upstream);
           const baseProgram = await compile(before);
@@ -208,8 +212,14 @@ export async function analyze(
               throw new Error("Service or API version removed: upstream coverage is unavailable.");
             }
           }
+          // Version projections mutate decorator state; inventory must precede analysis.
+          approvals = tool.compareSuppressions(baseProgram, headProgram).classifications;
           result = tool.analyzeBaseAndHead(baseProgram, headProgram);
         } else {
+          approvals = tool.compareInventories(
+            [],
+            tool.buildSuppressionInventory(headProgram),
+          ).classifications;
           result = tool.analyzeProgram(headProgram);
         }
         const json = JSON.parse(tool.formatJsonReport(result)) as {
@@ -228,18 +238,17 @@ export async function analyze(
                 }
               : undefined,
           })),
-          approvals:
-            result.suppressionComparison?.classifications.map((approval) => ({
-              classification: approval.classification,
-              head: approval.head && {
-                decorator: approval.head.decorator,
-                anchorIdentity: approval.head.anchorIdentity,
-                kind: approval.head.kind,
-                path: approval.head.path,
-                since: approval.head.since,
-                reason: approval.head.reason,
-              },
-            })) ?? [],
+          approvals: approvals.map((approval) => ({
+            classification: approval.classification,
+            head: approval.head && {
+              decorator: approval.head.decorator,
+              anchorIdentity: approval.head.anchorIdentity,
+              kind: approval.head.kind,
+              path: approval.head.path,
+              since: approval.head.since,
+              reason: approval.head.reason,
+            },
+          })),
           comparisons: json.summary.versionComparisons ?? [],
           markdown: tool.renderMarkdownSummary(result, {
             specPaths: [project],
