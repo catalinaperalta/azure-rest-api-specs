@@ -24,6 +24,10 @@ enum Versions {
   /** Unchanged subsequent stable resource contract. */
   @armCommonTypesVersion(Azure.ResourceManager.CommonTypes.Versions.v5)
   v2: "2026-06-01",
+
+  /** Scenario version 2026-10-01. */
+  @armCommonTypesVersion(Azure.ResourceManager.CommonTypes.Versions.v5)
+  v3: "2026-10-01",
 }
 
 /** A resource with the same model in request and response positions. */
@@ -34,10 +38,16 @@ model Widget is TrackedResource<WidgetProperties> {
 /** Properties shared by read, create, update and list operations. */
 model WidgetProperties {
   /** City associated with this resource. */
+  @removed(Versions.v3)
   city?: string;
 
+  /** New shared request/response field. */
+  @added(Versions.v3)
+  trackingCode?: string;
+
   /** Requested processing mode. */
-  mode?: "fast" | "safe";
+  @typeChangedFrom(Versions.v3, "fast" | "safe")
+  mode?: "fast";
 
   /** Result of the latest provisioning operation. */
   @visibility(Lifecycle.Read)
