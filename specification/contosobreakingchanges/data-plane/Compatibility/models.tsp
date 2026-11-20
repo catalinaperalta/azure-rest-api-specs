@@ -22,7 +22,7 @@ model WidgetOutput {
   name: string;
 
   /** City associated with the widget. */
-  city: string;
+
 
   /** Status guaranteed by the response contract. */
   status: "ready" | "pending";
