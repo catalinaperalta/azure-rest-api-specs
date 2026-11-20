@@ -8,6 +8,7 @@ rules without unrelated service-design lint diagnostics.
 input-file:
   - generated/openapi.2026-01-01.yaml
   - generated/openapi.2026-06-01.yaml
+  - generated/openapi.2026-10-01.yaml
 ```
 
 The demo analyzer builds Azure/typespec-azure at the revision pinned in

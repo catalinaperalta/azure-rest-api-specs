@@ -9,7 +9,7 @@ model WidgetInput {
   mode: "fast" | "safe";
 
   /** Optional caller note. */
-  note?: string;
+  note: string;
 }
 
 /** Body returned only in responses. */
@@ -22,6 +22,7 @@ model WidgetOutput {
   name: string;
 
   /** City associated with the widget. */
+  @TypeSpec.Versioning.removed(Versions.v3)
   city: string;
 
   /** Status guaranteed by the response contract. */
