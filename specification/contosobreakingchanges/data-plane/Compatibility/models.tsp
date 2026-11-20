@@ -6,7 +6,7 @@ model WidgetInput {
   name: string;
 
   /** Requested processing mode. */
-  mode: "fast" | "safe";
+  mode: "safe" | "fast";
 
   /** Optional caller note. */
   note?: string;

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Contoso breaking change demo
-  description: Non-shipping HTTP compatibility test service.
+  description: Non-shipping HTTP compatibility test service with clarified documentation.
   version: '2026-01-01'
 tags: []
 paths:
@@ -114,8 +114,8 @@ components:
         mode:
           type: string
           enum:
-            - fast
             - safe
+            - fast
           description: Requested processing mode.
         note:
           type: string
