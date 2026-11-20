@@ -21,9 +21,13 @@ enum Versions {
 
   /** Subsequent stable contract with the same wire shape. */
   v2: "2026-06-01",
+
+  /** Scenario version 2026-10-01. */
+  v3: "2026-10-01",
 }
 
 /** Creates a widget using an independently modeled request. */
+@removed(Versions.v3)
 @route("/widgets")
 @post
 op create(
@@ -44,9 +48,16 @@ op read(
 ): WidgetResponse;
 
 /** Reads a second representation sharing the same named response model. */
+@removed(Versions.v3)
 @route("/widget-copy/{widgetId}")
 @get
 op readCopy(
   /** Identifier of the widget to read. */
   @path widgetId: string,
 ): WidgetResponse;
+
+/** Replaces the old create contract in the new version. */
+@added(Versions.v3)
+@route("/widgets/by-name")
+@put
+op replace(@body body: WidgetInput): WidgetResponse;
