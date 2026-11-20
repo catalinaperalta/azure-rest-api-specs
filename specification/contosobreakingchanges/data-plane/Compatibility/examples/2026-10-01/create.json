@@ -1,0 +1,21 @@
+{
+  "title": "Create a widget in the subsequent stable version",
+  "operationId": "create",
+  "parameters": {
+    "api-version": "2026-10-01",
+    "body": {
+      "name": "sample",
+      "mode": "safe"
+    }
+  },
+  "responses": {
+    "201": {
+      "headers": {},
+      "body": {
+        "name": "sample",
+        "status": "ready",
+        "legacy": "retained"
+      }
+    }
+  }
+}
