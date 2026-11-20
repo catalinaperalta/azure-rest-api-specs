@@ -1,0 +1,32 @@
+import "@typespec/http";
+import "@typespec/versioning";
+
+using TypeSpec.Http;
+using TypeSpec.Versioning;
+
+/** Independent fixture for multi-project report aggregation. */
+@service(#{ title: "Contoso breaking change peer" })
+@server("https://example.com", "Non-shipping compatibility fixture.")
+@useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-api-key">)
+@versioned(Contoso.Fresh.Versions)
+namespace Contoso.Fresh;
+
+/** Supported fixture versions. */
+enum Versions {
+  /** Initial stable contract. */
+  v1: "2026-01-01",
+}
+
+/** Independent peer representation. */
+model Peer {
+  /** Stable representation identifier. */
+  id: string;
+
+  /** Accidental change to the peer's released API. */
+  accidental?: string;
+}
+
+/** Reads the independent peer representation. */
+@route("/peer")
+@get
+op read(): Peer;

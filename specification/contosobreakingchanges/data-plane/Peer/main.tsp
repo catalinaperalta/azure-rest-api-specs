@@ -21,6 +21,9 @@ enum Versions {
 model Peer {
   /** Stable representation identifier. */
   id: string;
+
+  /** Accidental change to the peer's released API. */
+  accidental?: string;
 }
 
 /** Reads the independent peer representation. */

@@ -14,7 +14,7 @@ model WidgetInput {
 
 /** Body returned only in responses. */
 @Azure.Core.approvedBreakingChange(
-  "Baseline fixture approval retained to test existing approval classification.",
+  "Updated fixture justification: the legacy response field is intentionally retired.",
   #{ kind: "ResponsePropertyRemoved", path: "legacy" }
 )
 model WidgetOutput {
@@ -28,6 +28,7 @@ model WidgetOutput {
   status: "ready" | "pending";
 
   /** Retained legacy field used by approval lifecycle tests. */
+  @TypeSpec.Versioning.removed(Versions.v3)
   legacy: string;
 }
 

@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: Contoso breaking change peer
+  description: Independent fixture for multi-project report aggregation.
+  version: '2026-01-01'
+tags: []
+paths:
+  /peer:
+    get:
+      operationId: read
+      description: Reads the independent peer representation.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Peer'
+security:
+  - ApiKeyAuth: []
+components:
+  schemas:
+    Peer:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Stable representation identifier.
+        accidental:
+          type: string
+          description: Accidental change to the peer's released API.
+      description: Independent peer representation.
+    Versions:
+      type: string
+      enum:
+        - '2026-01-01'
+      description: Supported fixture versions.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+servers:
+  - url: https://example.com
+    description: Non-shipping compatibility fixture.
+    variables: {}
