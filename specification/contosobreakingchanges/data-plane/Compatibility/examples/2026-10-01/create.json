@@ -1,0 +1,24 @@
+{
+  "title": "Create a widget in the subsequent stable version",
+  "operationId": "create",
+  "parameters": {
+    "api-version": "2026-10-01",
+    "body": {
+      "name": "sample",
+      "mode": "safe"
+    }
+  },
+  "responses": {
+    "200": {
+      "headers": {
+        "x-service-revision": "1"
+      },
+      "body": {
+        "name": "sample",
+        "city": "Seattle",
+        "status": "ready",
+        "legacy": "retained"
+      }
+    }
+  }
+}
