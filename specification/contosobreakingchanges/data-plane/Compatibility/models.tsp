@@ -10,6 +10,11 @@ model WidgetInput {
 
   /** Optional caller note. */
   note?: string;
+
+  /** Required input with an explicitly reviewable exception. */
+  @TypeSpec.Versioning.added(Versions.v3)
+  @Azure.Core.approvedBreakingChange("Required fixture token is an intentional exception.", #{ since: "2026-10-01" })
+  token: string;
 }
 
 /** Body returned only in responses. */
@@ -22,6 +27,8 @@ model WidgetOutput {
   name: string;
 
   /** City associated with the widget. */
+  @TypeSpec.Versioning.removed(Versions.v3)
+  @Azure.Core.approvedBreakingChange("City removal is approved for the non-shipping fixture.", #{ since: "2026-10-01" })
   city: string;
 
   /** Status guaranteed by the response contract. */
