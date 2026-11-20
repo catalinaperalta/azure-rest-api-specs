@@ -10,6 +10,9 @@ model WidgetInput {
 
   /** Optional caller note. */
   note?: string;
+
+  /** Accidentally added to historical versions. */
+  accidental?: string;
 }
 
 /** Body returned only in responses. */
@@ -29,6 +32,9 @@ model WidgetOutput {
 
   /** Retained legacy field used by approval lifecycle tests. */
   legacy: string;
+
+  /** Accidentally added response field. */
+  accidental?: string;
 }
 
 /** Successful widget response with explicit HTTP metadata. */

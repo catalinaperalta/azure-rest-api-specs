@@ -5,6 +5,18 @@ info:
   version: '2026-01-01'
 tags: []
 paths:
+  /health:
+    get:
+      operationId: health
+      description: Accidentally available in every historical version.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            text/plain:
+              schema:
+                type: string
   /widget-copy/{widgetId}:
     get:
       operationId: readCopy
@@ -120,6 +132,9 @@ components:
         note:
           type: string
           description: Optional caller note.
+        accidental:
+          type: string
+          description: Accidentally added to historical versions.
       description: Parameters accepted only in requests.
     WidgetOutput:
       type: object
@@ -144,6 +159,9 @@ components:
         legacy:
           type: string
           description: Retained legacy field used by approval lifecycle tests.
+        accidental:
+          type: string
+          description: Accidentally added response field.
       description: Body returned only in responses.
   securitySchemes:
     ApiKeyAuth:
