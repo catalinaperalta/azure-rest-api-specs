@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parse as parseYaml } from "yaml";
+import { load as parseYaml } from "js-yaml";
 import type { GitHubScriptArgs } from "../github.ts";
 import {
   COMMENT_MARKER,
