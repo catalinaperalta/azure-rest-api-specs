@@ -80,7 +80,6 @@ Versioning-Approved-NotReleased: *arm-breaking-change-policy
 TypeSpec-BreakingChange-Approved: *arm-breaking-change-policy
 TypeSpec-BreakingChange-Approved-BugFix: *arm-breaking-change-policy
 TypeSpec-UnversionedChange-Approved: *arm-breaking-change-policy
-TypeSpec-UnversionedChange-Approved-BugFix: *arm-breaking-change-policy
 
 # Package name approval labels (plane-aware)
 package-name-dotnet-approved:
