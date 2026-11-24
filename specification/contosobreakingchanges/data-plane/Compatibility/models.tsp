@@ -6,10 +6,15 @@ model WidgetInput {
   name: string;
 
   /** Requested processing mode. */
-  mode: "fast" | "safe";
+  @TypeSpec.Versioning.typeChangedFrom(Versions.v3, "fast" | "safe")
+  mode: "fast" | "safe" | "balanced";
 
   /** Optional caller note. */
   note?: string;
+
+  /** Optional tracking information. */
+  @TypeSpec.Versioning.added(Versions.v3)
+  trackingCode?: string;
 }
 
 /** Body returned only in responses. */
@@ -29,6 +34,10 @@ model WidgetOutput {
 
   /** Retained legacy field used by approval lifecycle tests. */
   legacy: string;
+
+  /** Optional response metadata. */
+  @TypeSpec.Versioning.added(Versions.v3)
+  etag?: string;
 }
 
 /** Successful widget response with explicit HTTP metadata. */

@@ -21,6 +21,9 @@ enum Versions {
 
   /** Subsequent stable contract with the same wire shape. */
   v2: "2026-06-01",
+
+  /** Scenario version 2026-10-01. */
+  v3: "2026-10-01",
 }
 
 /** Creates a widget using an independently modeled request. */
@@ -50,3 +53,9 @@ op readCopy(
   /** Identifier of the widget to read. */
   @path widgetId: string,
 ): WidgetResponse;
+
+/** Reports service health in the new version. */
+@added(Versions.v3)
+@route("/health")
+@get
+op health(): string;
