@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluatePhase,
+  formatProjectMarkdown,
   LABELS,
   parseReport,
   phaseFingerprint,
@@ -101,6 +102,44 @@ describe("TypeSpec demo approval policy", () => {
   it("keeps phase gates independent", () => {
     expect(evaluatePhase(report(), "same-version", false, false).state).toBe("success");
     expect(LABELS["same-version"].bugfix).not.toBe(LABELS["cross-version"].bugfix);
+  });
+
+  it("uses a single exception label for changes to existing API versions", () => {
+    const value = report();
+    value.projects[0].findings[0].phase = "same-version";
+    expect(LABELS["same-version"].approved).toBeUndefined();
+    expect(LABELS["same-version"].bugfix).toBe("TypeSpec-UnversionedChange-Approved");
+    expect(evaluatePhase(value, "same-version", false, false).state).toBe("failure");
+    expect(evaluatePhase(value, "same-version", false, true).state).toBe("success");
+  });
+
+  it("formats upstream project markdown for nesting in the PR comment", () => {
+    const path = "specification/contoso/data-plane/Widget";
+    const markdown = [
+      "",
+      `### ${path}`,
+      "",
+      "No breaking changes found (2 version pairs compared)",
+      "",
+      "2 version pairs compared",
+      "",
+      "### New Breaking Changes",
+      "",
+      "#### 2026-01-01 → 2026-06-01",
+      "",
+      "| Kind | Source declaration | Wire identity | Source | Suppression |",
+    ].join("\n");
+    expect(formatProjectMarkdown(markdown, path)).toBe(
+      [
+        "No breaking changes found (2 version pairs compared)",
+        "",
+        "##### New Breaking Changes",
+        "",
+        "###### 2026-01-01 → 2026-06-01",
+        "",
+        "| Kind | Source declaration | Wire identity | Source | Suggested Fix |",
+      ].join("\n"),
+    );
   });
 
   it("requires review of new and modified decorators even when they match no finding", () => {
