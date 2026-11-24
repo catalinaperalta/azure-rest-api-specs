@@ -165,6 +165,19 @@ describe("demo result publication", () => {
     );
   });
 
+  it("supports an explicitly authorized manual refresh without bypassing approval policy", async () => {
+    const label = LABELS["cross-version"].bugfix;
+    context.eventName = "workflow_dispatch";
+    context.payload = { inputs: { pull_number: "42", approval_label: label } };
+    pull.labels = [{ name: label }];
+    await postResults({ github, context, core });
+    expect(github.rest.repos.createCommitStatus).toHaveBeenCalledWith(
+      expect.objectContaining({ context: LABELS["cross-version"].check, state: "success" }),
+    );
+    context.payload = { inputs: { pull_number: "not-a-number" } };
+    await expect(postResults({ github, context, core })).rejects.toThrow("valid PR number");
+  });
+
   it("uses enabled configuration on any trusted base and accepts fork-head analysis", async () => {
     pull.base.ref = "main";
     pull.head.repo.full_name = "contributor/azure-rest-api-specs";

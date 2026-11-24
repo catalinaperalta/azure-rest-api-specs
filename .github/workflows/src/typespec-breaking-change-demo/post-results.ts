@@ -7,6 +7,7 @@ import type { GitHubScriptArgs } from "../github.ts";
 import {
   COMMENT_MARKER,
   evaluatePhase,
+  formatProjectMarkdown,
   LABELS,
   parseReport,
   PHASES,
@@ -21,6 +22,7 @@ interface CommentState {
 }
 
 interface DemoEvent {
+  inputs?: { pull_number?: string; approval_label?: string };
   action?: string;
   pull_request?: { number: number };
   label?: { name: string };
@@ -58,6 +60,11 @@ export default async function postResults({ github, context, core }: GitHubScrip
   const payload = context.payload as DemoEvent;
   const runEvent = payload.workflow_run;
   let number = payload.pull_request?.number;
+  if (context.eventName === "workflow_dispatch") {
+    number = Number(payload.inputs?.pull_number);
+    if (!Number.isSafeInteger(number) || number <= 0)
+      throw new Error("A valid PR number is required.");
+  }
   if (!number && runEvent) {
     const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
       owner,
@@ -113,15 +120,14 @@ export default async function postResults({ github, context, core }: GitHubScrip
     throw error;
   }
   const labels = new Set(pr.labels.map((label) => label.name));
-  const approvalLabel = payload.label?.name;
-  const knownApprovalLabels: string[] = PHASES.flatMap((phase) => [
-    LABELS[phase].approved,
-    LABELS[phase].bugfix,
-  ]);
+  const approvalLabel = payload.label?.name ?? payload.inputs?.approval_label;
+  const knownApprovalLabels: string[] = PHASES.flatMap((phase) =>
+    [LABELS[phase].approved, LABELS[phase].bugfix].filter((label) => label !== undefined),
+  );
   let authorizedLabelEvent = false;
   if (
-    context.eventName === "pull_request_target" &&
-    payload.action === "labeled" &&
+    ((context.eventName === "pull_request_target" && payload.action === "labeled") ||
+      context.eventName === "workflow_dispatch") &&
     approvalLabel &&
     knownApprovalLabels.includes(approvalLabel)
   ) {
@@ -179,7 +185,6 @@ export default async function postResults({ github, context, core }: GitHubScrip
     owner,
     repo,
     workflow_id: "typespec-breaking-change-demo.yaml",
-    event: "pull_request",
     branch: pr.head.ref,
     head_sha: pr.head.sha,
     per_page: 10,
@@ -265,7 +270,7 @@ export default async function postResults({ github, context, core }: GitHubScrip
         ["regular", LABELS[phase].approved],
         ["bugfix", LABELS[phase].bugfix],
       ] as const) {
-        if (!labels.has(label)) continue;
+        if (!label || !labels.has(label)) continue;
         if (authorizedLabelEvent && approvalLabel === label) {
           current[family] = fingerprint;
         } else if (previous[family] === fingerprint) {
@@ -283,10 +288,12 @@ export default async function postResults({ github, context, core }: GitHubScrip
       } else if (!decision.requiresReview && labels.has(reviewLabel)) {
         pendingRemovals.add(reviewLabel);
       }
+      const approvalHelp = LABELS[phase].approved
+        ? `Regular approval: \`${LABELS[phase].approved}\` (matching \`@approvedBreakingChange\` decorators required).  \n` +
+          `Bugfix exception: \`${LABELS[phase].bugfix}\` (no decorator required).`
+        : `Exception approval: \`${LABELS[phase].bugfix}\` (no decorator required).`;
       sections.push(
-        `## ${LABELS[phase].check}\n\n**${decision.state.toUpperCase()}**: ${decision.description}\n\n` +
-          `Regular approval: \`${LABELS[phase].approved}\` (matching decorator required).  \n` +
-          `Bugfix exception: \`${LABELS[phase].bugfix}\` (no decorator required).`,
+        `## ${LABELS[phase].check}\n\n**${decision.state.toUpperCase()}**: ${decision.description}\n\n${approvalHelp}`,
       );
     }
     for (const failure of report.failures) {
@@ -294,9 +301,10 @@ export default async function postResults({ github, context, core }: GitHubScrip
         `**Analysis failure** in \`${failure.path}\`:\n\n\`\`\`text\n${failure.message.slice(0, 3000)}\n\`\`\``,
       );
     }
+    if (report.projects.length > 0) sections.push("## Details by project");
     for (const project of report.projects) {
       sections.push(
-        `<details>\n<summary>${project.path}</summary>\n\n${project.markdown.slice(0, 12000)}\n\n</details>`,
+        `<details>\n<summary>${project.path}</summary>\n\n${formatProjectMarkdown(project.markdown, project.path).slice(0, 12000)}\n\n</details>`,
       );
     }
   } catch (error) {
