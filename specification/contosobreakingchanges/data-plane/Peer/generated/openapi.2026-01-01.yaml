@@ -29,6 +29,9 @@ components:
         id:
           type: string
           description: Stable representation identifier.
+        accidental:
+          type: string
+          description: Accidental change to the peer's released API.
       description: Independent peer representation.
     Versions:
       type: string
