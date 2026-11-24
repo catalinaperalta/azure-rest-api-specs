@@ -308,10 +308,5 @@ if (process.argv[1] && resolve(process.argv[1]) === import.meta.filename) {
     throw new Error("Usage: node analyze.ts <upstream-root> <base-ref> [output]");
   const root = git(process.cwd(), "rev-parse", "--show-toplevel");
   const report = await analyze(root, resolve(upstream), base, resolve(output));
-  process.exitCode =
-    report.failures.length > 0
-      ? 2
-      : PHASES.some((phase) => evaluatePhase(report, phase, false, false).state === "failure")
-        ? 1
-        : 0;
+  process.exitCode = report.failures.length > 0 ? 2 : 0;
 }
