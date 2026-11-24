@@ -15,5 +15,5 @@ These settings apply only when `--tag=package-2026-01-01` is specified.
 ```yaml $(tag) == 'package-2026-01-01'
 version: "2026-01-01"
 input-file:
-  - generated/openapi.2026-01-01.json
+  - generated/openapi.2026-01-01.yaml
 ```
