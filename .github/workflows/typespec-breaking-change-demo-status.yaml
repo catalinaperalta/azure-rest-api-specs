@@ -1,6 +1,16 @@
 name: "TypeSpec Breaking Change - Publish Results"
 
 on: # zizmor: ignore[dangerous-triggers] Only trusted default-branch code runs; artifacts are parsed as data.
+  workflow_dispatch:
+    inputs:
+      pull_number:
+        description: "PR number whose latest analysis should be published."
+        required: true
+        type: string
+      approval_label:
+        description: "Optional existing approval label to bind after checking the dispatching actor's authorization."
+        required: false
+        type: string
   workflow_run:
     workflows: ["TypeSpec Breaking Change - Analyze Code"]
     types: [completed]
@@ -10,7 +20,7 @@ on: # zizmor: ignore[dangerous-triggers] Only trusted default-branch code runs; 
 permissions: {}
 
 concurrency:
-  group: typespec-bc-demo-publish-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
+  group: typespec-bc-demo-publish-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch || inputs.pull_number }}
   cancel-in-progress: false
 
 jobs:

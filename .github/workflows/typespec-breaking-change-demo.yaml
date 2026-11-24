@@ -1,6 +1,12 @@
 name: "TypeSpec Breaking Change - Analyze Code"
 
 on:
+  workflow_dispatch:
+    inputs:
+      base_sha:
+        description: "Full base commit SHA. Dispatch against the PR head branch."
+        required: true
+        type: string
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
@@ -14,7 +20,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Install normal specs repository dependencies
         uses: ./.github/actions/setup-node-install-deps
@@ -44,9 +50,10 @@ jobs:
 
       - name: Analyze both phases and retain raw results
         env:
-          BASE_REF: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_sha }}
         shell: bash
         run: |
+          [[ "$BASE_REF" =~ ^[0-9a-f]{40}$ ]] || { echo "A full base commit SHA is required"; exit 2; }
           node .github/workflows/src/typespec-breaking-change-demo/analyze.ts \
             "$GITHUB_WORKSPACE/.breaking-change-upstream" "$BASE_REF" "$RUNNER_TEMP/compatibility-report"
 
