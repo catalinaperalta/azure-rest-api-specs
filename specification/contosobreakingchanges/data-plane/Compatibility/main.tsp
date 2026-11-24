@@ -50,3 +50,8 @@ op readCopy(
   /** Identifier of the widget to read. */
   @path widgetId: string,
 ): WidgetResponse;
+
+/** Accidentally available in every historical version. */
+@route("/health")
+@get
+op health(): string;
