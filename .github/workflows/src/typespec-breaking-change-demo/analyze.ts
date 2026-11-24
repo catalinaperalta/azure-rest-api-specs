@@ -8,6 +8,9 @@ import {
 } from "../../../shared/src/typespec-projects.ts";
 import {
   evaluatePhase,
+  formatProjectMarkdown,
+  LABELS,
+  PHASE_NAMES,
   PHASES,
   REPORT_NAME,
   UPSTREAM_SHA,
@@ -256,6 +259,7 @@ export async function analyze(
             githubRepository: process.env.GITHUB_REPOSITORY,
             githubSha: report.headSha,
             githubServerUrl: process.env.GITHUB_SERVER_URL,
+            omitTitle: true,
           }),
         });
       } catch (error) {
@@ -274,12 +278,14 @@ export async function analyze(
     `Tool revision: \`${UPSTREAM_SHA}\``,
     ...PHASES.map((phase) => {
       const decision = evaluatePhase(report, phase, false, false);
-      return `- ${phase}: **${decision.state}** - ${decision.description}`;
+      return `- ${LABELS[phase].check} (${PHASE_NAMES[phase].toLowerCase()}): **${decision.state}** - ${decision.description}`;
     }),
     ...report.failures.map(
       (failure) => `Analysis failure in \`${failure.path}\`: ${failure.message}`,
     ),
-    ...report.projects.map((project) => `## ${project.path}\n\n${project.markdown}`),
+    ...report.projects.map(
+      (project) => `## ${project.path}\n\n${formatProjectMarkdown(project.markdown, project.path)}`,
+    ),
   ].join("\n\n");
   await writeFile(join(output, `${REPORT_NAME}.md`), markdown);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, markdown);
