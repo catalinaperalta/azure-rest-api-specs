@@ -21,6 +21,7 @@ interface CommentState {
 }
 
 interface DemoEvent {
+  inputs?: { pull_number?: string; approval_label?: string };
   action?: string;
   pull_request?: { number: number };
   label?: { name: string };
@@ -58,6 +59,11 @@ export default async function postResults({ github, context, core }: GitHubScrip
   const payload = context.payload as DemoEvent;
   const runEvent = payload.workflow_run;
   let number = payload.pull_request?.number;
+  if (context.eventName === "workflow_dispatch") {
+    number = Number(payload.inputs?.pull_number);
+    if (!Number.isSafeInteger(number) || number <= 0)
+      throw new Error("A valid PR number is required.");
+  }
   if (!number && runEvent) {
     const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
       owner,
@@ -113,15 +119,15 @@ export default async function postResults({ github, context, core }: GitHubScrip
     throw error;
   }
   const labels = new Set(pr.labels.map((label) => label.name));
-  const approvalLabel = payload.label?.name;
+  const approvalLabel = payload.label?.name ?? payload.inputs?.approval_label;
   const knownApprovalLabels: string[] = PHASES.flatMap((phase) => [
     LABELS[phase].approved,
     LABELS[phase].bugfix,
   ]);
   let authorizedLabelEvent = false;
   if (
-    context.eventName === "pull_request_target" &&
-    payload.action === "labeled" &&
+    ((context.eventName === "pull_request_target" && payload.action === "labeled") ||
+      context.eventName === "workflow_dispatch") &&
     approvalLabel &&
     knownApprovalLabels.includes(approvalLabel)
   ) {
@@ -179,7 +185,6 @@ export default async function postResults({ github, context, core }: GitHubScrip
     owner,
     repo,
     workflow_id: "typespec-breaking-change-demo.yaml",
-    event: "pull_request",
     branch: pr.head.ref,
     head_sha: pr.head.sha,
     per_page: 10,
