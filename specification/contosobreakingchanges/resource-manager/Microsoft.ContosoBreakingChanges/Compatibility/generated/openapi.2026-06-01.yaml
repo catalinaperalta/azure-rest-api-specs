@@ -945,6 +945,7 @@ components:
       enum:
         - '2026-01-01'
         - '2026-06-01'
+        - '2026-10-01'
       description: Stable versions used to exercise resource-level breaking changes.
     Widget:
       type: object

@@ -16,6 +16,7 @@ These settings apply only when `--tag=package-2026-06-01` is specified.
 version: "2026-06-01"
 input-file:
   - generated/openapi.2026-06-01.yaml
+  - generated/openapi.2026-10-01.yaml
 ```
 
 ### Release 2026-01-01
