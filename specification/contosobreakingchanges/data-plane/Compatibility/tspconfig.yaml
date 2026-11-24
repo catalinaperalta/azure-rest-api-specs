@@ -1,7 +1,15 @@
+parameters:
+  "service-dir":
+    default: "sdk/contosobreakingchanges"
 emit:
   - "@typespec/openapi3"
+  - "@azure-tools/typespec-autorest"
 options:
   "@typespec/openapi3":
     emitter-output-dir: "{project-root}/generated"
+  "@azure-tools/typespec-autorest":
+    emit-lro-options: "none"
+    emitter-output-dir: "{project-root}"
+    output-file: "generated/openapi.{version}.json"
 linter:
   extends: []

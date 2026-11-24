@@ -18,7 +18,7 @@ These settings apply only when `--tag=package-2026-06-01` is specified.
 ```yaml $(tag) == 'package-2026-06-01'
 version: "2026-06-01"
 input-file:
-  - generated/openapi.2026-06-01.yaml
+  - generated/openapi.2026-06-01.json
 ```
 
 ### Release 2026-01-01
@@ -28,7 +28,7 @@ These settings apply only when `--tag=package-2026-01-01` is specified.
 ```yaml $(tag) == 'package-2026-01-01'
 version: "2026-01-01"
 input-file:
-  - generated/openapi.2026-01-01.yaml
+  - generated/openapi.2026-01-01.json
 ```
 
 The demo analyzer builds Azure/typespec-azure at the revision pinned in
