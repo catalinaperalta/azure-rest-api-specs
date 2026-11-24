@@ -101,12 +101,14 @@ components:
       enum:
         - '2026-01-01'
         - '2026-06-01'
+        - '2026-10-01'
       description: API versions retained by the compatibility fixture.
     WidgetInput:
       type: object
       required:
         - name
         - mode
+        - note
       properties:
         name:
           type: string

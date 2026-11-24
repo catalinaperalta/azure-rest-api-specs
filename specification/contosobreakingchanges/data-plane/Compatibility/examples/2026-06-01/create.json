@@ -3,12 +3,23 @@
   "operationId": "create",
   "parameters": {
     "api-version": "2026-06-01",
-    "body": { "name": "sample", "mode": "safe" }
+    "body": {
+      "name": "sample",
+      "mode": "safe",
+      "note": "Required by the intentionally edited historical contract"
+    }
   },
   "responses": {
     "200": {
-      "headers": { "x-service-revision": "1" },
-      "body": { "name": "sample", "city": "Seattle", "status": "ready", "legacy": "retained" }
+      "headers": {
+        "x-service-revision": "1"
+      },
+      "body": {
+        "name": "sample",
+        "city": "Seattle",
+        "status": "ready",
+        "legacy": "retained"
+      }
     }
   }
 }

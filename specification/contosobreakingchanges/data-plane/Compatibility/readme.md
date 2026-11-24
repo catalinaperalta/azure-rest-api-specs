@@ -6,10 +6,20 @@ rules without unrelated service-design lint diagnostics.
 
 ```yaml
 openapi-type: data-plane
-tag: package-2026-06-01
+tag: package-2026-10-01
 ```
 
 ## Releases
+
+### Release 2026-10-01
+
+These settings apply only when `--tag=package-2026-10-01` is specified.
+
+```yaml $(tag) == 'package-2026-10-01'
+version: "2026-10-01"
+input-file:
+  - generated/openapi.2026-10-01.yaml
+```
 
 ### Release 2026-06-01
 
