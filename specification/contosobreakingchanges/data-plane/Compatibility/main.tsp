@@ -43,10 +43,3 @@ op read(
   @path widgetId: string,
 ): WidgetResponse;
 
-/** Reads a second representation sharing the same named response model. */
-@route("/widget-copy/{widgetId}")
-@get
-op readCopy(
-  /** Identifier of the widget to read. */
-  @path widgetId: string,
-): WidgetResponse;

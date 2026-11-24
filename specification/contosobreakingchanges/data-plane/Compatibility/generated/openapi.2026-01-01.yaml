@@ -5,30 +5,6 @@ info:
   version: '2026-01-01'
 tags: []
 paths:
-  /widget-copy/{widgetId}:
-    get:
-      operationId: readCopy
-      description: Reads a second representation sharing the same named response model.
-      parameters:
-        - name: widgetId
-          in: path
-          required: true
-          description: Identifier of the widget to read.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful widget response with explicit HTTP metadata.
-          headers:
-            x-service-revision:
-              required: true
-              description: Service revision returned to callers.
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WidgetOutput'
   /widgets:
     post:
       operationId: create
@@ -125,22 +101,18 @@ components:
       type: object
       required:
         - name
-        - city
         - status
         - legacy
       properties:
         name:
           type: string
           description: Human-readable widget name.
-        city:
-          type: string
-          description: City associated with the widget.
         status:
           type: string
           enum:
             - ready
             - pending
-          description: Status guaranteed by the response contract.
+          description: City associated with the widget.Status guaranteed by the response contract.
         legacy:
           type: string
           description: Retained legacy field used by approval lifecycle tests.
