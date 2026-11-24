@@ -21,6 +21,9 @@ enum Versions {
 
   /** Subsequent stable contract with the same wire shape. */
   v2: "2026-06-01",
+
+  /** Scenario version 2026-10-01. */
+  v3: "2026-10-01",
 }
 
 /** Creates a widget using an independently modeled request. */
@@ -28,7 +31,8 @@ enum Versions {
 @post
 op create(
   /** Limits the number of related items. */
-  @query limit?: int32,
+  @madeRequired(Versions.v3)
+  @query limit: int32,
   /** Identifies an optional caller feature. */
   @header("x-feature") feature?: string,
   /** Widget creation parameters. */

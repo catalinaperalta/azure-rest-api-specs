@@ -6,7 +6,7 @@ rules without unrelated service-design lint diagnostics.
 
 ```yaml
 openapi-type: data-plane
-tag: package-2026-06-01
+tag: package-2026-10-01
 ```
 
 ## Releases
@@ -48,3 +48,13 @@ These are deliberately non-shipping fixtures: SDK naming/customization and SDK
 generation are inapplicable. Their PRs use the same service-scope project discovery,
 main-branch core-file policy, protected labels, and required status gates configured
 on the integration base branch.
+
+### Release 2026-10-01
+
+These settings apply only when `--tag=package-2026-10-01` is specified.
+
+```yaml $(tag) == 'package-2026-10-01'`
+version: "2026-10-01"
+input-file:
+  - generated/openapi.2026-10-01.yaml
+```
