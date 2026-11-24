@@ -5,12 +5,60 @@ The low-level HTTP shapes and intentionally closed unions isolate compatibility
 rules without unrelated service-design lint diagnostics.
 
 ```yaml
+openapi-type: data-plane
+tag: package-2026-10-01
+```
+
+## Releases
+
+### Release 2026-10-01
+
+These settings apply only when `--tag=package-2026-10-01` is specified.
+
+```yaml $(tag) == 'package-2026-10-01'
+version: "2026-10-01"
+input-file:
+  - generated/openapi.2026-10-01.yaml
+```
+
+### Release 2026-09-01-preview
+
+These settings apply only when `--tag=package-2026-09-01-preview` is specified.
+
+```yaml $(tag) == 'package-2026-09-01-preview'
+version: "2026-09-01-preview"
+input-file:
+  - generated/openapi.2026-09-01-preview.yaml
+```
+
+### Release 2026-08-01-preview
+
+These settings apply only when `--tag=package-2026-08-01-preview` is specified.
+
+```yaml $(tag) == 'package-2026-08-01-preview'
+version: "2026-08-01-preview"
+input-file:
+  - generated/openapi.2026-08-01-preview.yaml
+```
+
+### Release 2026-06-01
+
+These settings apply only when `--tag=package-2026-06-01` is specified.
+
+```yaml $(tag) == 'package-2026-06-01'
+version: "2026-06-01"
+input-file:
+  - generated/openapi.2026-06-01.yaml
+```
+
+### Release 2026-01-01
+
+These settings apply only when `--tag=package-2026-01-01` is specified.
+
+```yaml $(tag) == 'package-2026-01-01'
+version: "2026-01-01"
 input-file:
   - generated/openapi.2026-01-01.yaml
-  - generated/openapi.2026-06-01.yaml
-  - generated/openapi.2026-08-01-preview.yaml
-  - generated/openapi.2026-09-01-preview.yaml
-  - generated/openapi.2026-10-01.yaml
 ```
 
 The demo analyzer builds Azure/typespec-azure at the revision pinned in
