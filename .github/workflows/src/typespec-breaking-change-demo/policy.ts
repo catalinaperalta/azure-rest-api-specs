@@ -6,20 +6,65 @@ export const COMMENT_MARKER = "<!-- typespec-breaking-change-demo -->";
 export const PHASES = ["same-version", "cross-version"] as const;
 export type Phase = (typeof PHASES)[number];
 
-export const LABELS = {
+export interface PhaseLabels {
+  /** Regular approval of matching approval decorators; absent when the phase has no decorator path. */
+  approved?: string;
+  /** Exception approval that does not require approval decorators. */
+  bugfix: string;
+  review: string;
+  check: string;
+}
+
+// Initial rollout: same-version changes have a single exception label and no decorator approval path.
+export const LABELS: Record<Phase, PhaseLabels> = {
   "same-version": {
-    approved: "TypeSpec-UnversionedChange-Approved",
-    bugfix: "TypeSpec-UnversionedChange-Approved-BugFix",
+    bugfix: "TypeSpec-UnversionedChange-Approved",
     review: "TypeSpec-UnversionedChange-ReviewRequired",
-    check: "TypeSpec Unversioned Change",
+    check: "TypeSpec Unversioned Breaking Change",
   },
   "cross-version": {
     approved: "TypeSpec-BreakingChange-Approved",
     bugfix: "TypeSpec-BreakingChange-Approved-BugFix",
     review: "TypeSpec-BreakingChange-ReviewRequired",
-    check: "TypeSpec Breaking Change",
+    check: "TypeSpec Versioned Breaking Change",
   },
-} as const;
+};
+
+export const PHASE_NAMES: Record<Phase, string> = {
+  "same-version": "Same-version",
+  "cross-version": "Cross-version",
+};
+
+/**
+ * Adapts upstream per-project markdown for nesting inside the consolidated PR comment:
+ * drops the repeated project heading, demotes headings below the comment's H2 sections,
+ * removes redundant comparison counts, and clarifies the suggestion column.
+ */
+export function formatProjectMarkdown(markdown: string, projectPath: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  for (const line of lines) {
+    if (line.trim() === `### ${projectPath}`) continue;
+    const previous = [...result].reverse().find((entry) => entry.trim() !== "");
+    if (
+      /^\d+ version pairs? compared$/.test(line.trim()) &&
+      previous !== undefined &&
+      /version pairs? compared\)/.test(previous)
+    ) {
+      continue;
+    }
+    const heading = /^(#{1,4}) (.*)$/.exec(line);
+    if (heading) {
+      result.push(`${"#".repeat(Math.min(heading[1].length + 2, 6))} ${heading[2]}`);
+      continue;
+    }
+    result.push(line.replace(/\| Suppression \|$/, "| Suggested Fix |"));
+  }
+  return result
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 export interface Finding {
   kind: string;
@@ -144,14 +189,20 @@ export function evaluatePhase(
       ...common,
       requiresReview: false,
       state: "success",
-      description: "Reviewer-approved bugfix exception.",
+      description:
+        phase === "same-version"
+          ? "Reviewer-approved exception for existing API versions."
+          : "Reviewer-approved bugfix exception.",
     };
   }
   if (errors > 0) {
     return {
       ...common,
       state: "failure",
-      description: `${errors} finding(s) need matching decorators or bugfix approval.`,
+      description:
+        phase === "same-version"
+          ? `${errors} change(s) to existing API versions need to be reverted or approved.`
+          : `${errors} finding(s) need matching decorators or bugfix approval.`,
     };
   }
   if (approvals > 0 && !approved) {

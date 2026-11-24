@@ -168,13 +168,13 @@ const CHECK_METADATA: CheckMetadata[] = [
   },
   {
     precedence: 0,
-    name: "TypeSpec Breaking Change",
+    name: "TypeSpec Versioned Breaking Change",
     suppressionLabels: [],
     troubleshootingGuide: brchTsg,
   },
   {
     precedence: 0,
-    name: "TypeSpec Unversioned Change",
+    name: "TypeSpec Unversioned Breaking Change",
     suppressionLabels: [],
     troubleshootingGuide: brchTsg,
   },
