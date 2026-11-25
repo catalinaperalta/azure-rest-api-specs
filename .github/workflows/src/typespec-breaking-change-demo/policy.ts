@@ -115,8 +115,23 @@ export interface Report {
   failures: { path: string; message: string }[];
 }
 
+export type Outcome = "failed" | "approved" | "clean";
+
+export const OUTCOME_ICONS: Record<Outcome, string> = {
+  failed: "❌",
+  approved: "✅",
+  clean: "⚪",
+};
+
+const OUTCOME_TEXT: Record<Outcome, string> = {
+  failed: "Action required",
+  approved: "Approved",
+  clean: "No breaking changes",
+};
+
 export interface Decision {
   state: "success" | "failure";
+  outcome: Outcome;
   description: string;
   fingerprint: string;
   requiresReview: boolean;
@@ -181,6 +196,7 @@ export function evaluatePhase(
     return {
       ...common,
       state: "failure",
+      outcome: "failed",
       description: "Analysis failed; approval cannot override.",
     };
   }
@@ -189,6 +205,7 @@ export function evaluatePhase(
       ...common,
       requiresReview: false,
       state: "success",
+      outcome: "approved",
       description:
         phase === "same-version"
           ? "Reviewer-approved exception for existing API versions."
@@ -199,6 +216,7 @@ export function evaluatePhase(
     return {
       ...common,
       state: "failure",
+      outcome: "failed",
       description:
         phase === "same-version"
           ? `${errors} change(s) to existing API versions need to be reverted or approved.`
@@ -209,6 +227,7 @@ export function evaluatePhase(
     return {
       ...common,
       state: "failure",
+      outcome: "failed",
       description: "Approval decorators require reviewer approval.",
     };
   }
@@ -216,10 +235,85 @@ export function evaluatePhase(
     ...common,
     requiresReview: false,
     state: "success",
+    outcome: common.requiresReview ? "approved" : "clean",
     description: common.requiresReview
       ? "Matching decorators approved by reviewer."
       : "No new changes require approval.",
   };
+}
+
+function labelLine(role: string, label: string, detail: string, applied: boolean): string {
+  return `- ${applied ? "✅" : "⬜"} ${role}: \`${label}\` (${detail})${applied ? " — **applied**" : ""}`;
+}
+
+/** Renders the summary table shown at the top of the PR comment. */
+export function renderSummaryTable(decisions: ReadonlyMap<Phase, Decision>): string {
+  const rows = PHASES.map((phase) => {
+    const decision = decisions.get(phase)!;
+    return `| ${OUTCOME_ICONS[decision.outcome]} | ${LABELS[phase].check} | ${OUTCOME_TEXT[decision.outcome]} | ${decision.description} |`;
+  });
+  return [
+    "| | Check | Status | Details |",
+    "| :-: | --- | --- | --- |",
+    ...rows,
+    "",
+    `${OUTCOME_ICONS.failed} action required · ${OUTCOME_ICONS.approved} approved by reviewer label · ${OUTCOME_ICONS.clean} no breaking changes`,
+  ].join("\n");
+}
+
+/** Renders one check section, including which approval labels are currently applied. */
+export function renderPhaseSection(
+  phase: Phase,
+  decision: Decision,
+  appliedLabels: ReadonlySet<string>,
+): string {
+  const labels = LABELS[phase];
+  const lines = [
+    `## ${OUTCOME_ICONS[decision.outcome]} ${labels.check}`,
+    "",
+    `**${OUTCOME_TEXT[decision.outcome]}**: ${decision.description}`,
+    "",
+  ];
+  if (labels.approved) {
+    lines.push(
+      labelLine(
+        "Regular approval",
+        labels.approved,
+        "matching `@approvedBreakingChange` decorators required",
+        appliedLabels.has(labels.approved),
+      ),
+      labelLine(
+        "Bugfix exception",
+        labels.bugfix,
+        "no decorator required",
+        appliedLabels.has(labels.bugfix),
+      ),
+    );
+  } else {
+    lines.push(
+      labelLine(
+        "Exception approval",
+        labels.bugfix,
+        "no decorator required",
+        appliedLabels.has(labels.bugfix),
+      ),
+    );
+  }
+  return lines.join("\n");
+}
+
+/** Picks a project icon from the phases in which the project has reviewable changes. */
+export function projectOutcome(
+  project: ProjectReport,
+  decisions: ReadonlyMap<Phase, Decision>,
+): Outcome {
+  const phases = PHASES.filter(
+    (phase) =>
+      project.findings.some((finding) => finding.phase === phase && finding.severity === "error") ||
+      changedApprovals(project, phase).length > 0,
+  );
+  if (phases.length === 0) return "clean";
+  return phases.some((phase) => decisions.get(phase)?.state === "failure") ? "failed" : "approved";
 }
 
 export function parseReport(text: string): Report {
