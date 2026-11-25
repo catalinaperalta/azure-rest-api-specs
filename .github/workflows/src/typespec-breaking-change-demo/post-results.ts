@@ -9,8 +9,12 @@ import {
   evaluatePhase,
   formatProjectMarkdown,
   LABELS,
+  OUTCOME_ICONS,
   parseReport,
   PHASES,
+  projectOutcome,
+  renderPhaseSection,
+  renderSummaryTable,
   REPORT_NAME,
   type Phase,
 } from "./policy.ts";
@@ -288,13 +292,11 @@ export default async function postResults({ github, context, core }: GitHubScrip
       } else if (!decision.requiresReview && labels.has(reviewLabel)) {
         pendingRemovals.add(reviewLabel);
       }
-      const approvalHelp = LABELS[phase].approved
-        ? `Regular approval: \`${LABELS[phase].approved}\` (matching \`@approvedBreakingChange\` decorators required).  \n` +
-          `Bugfix exception: \`${LABELS[phase].bugfix}\` (no decorator required).`
-        : `Exception approval: \`${LABELS[phase].bugfix}\` (no decorator required).`;
-      sections.push(
-        `## ${LABELS[phase].check}\n\n**${decision.state.toUpperCase()}**: ${decision.description}\n\n${approvalHelp}`,
-      );
+    }
+    const appliedLabels = new Set([...labels].filter((label) => !pendingRemovals.has(label)));
+    sections.push(renderSummaryTable(decisions));
+    for (const phase of PHASES) {
+      sections.push(renderPhaseSection(phase, decisions.get(phase)!, appliedLabels));
     }
     for (const failure of report.failures) {
       sections.push(
@@ -304,7 +306,7 @@ export default async function postResults({ github, context, core }: GitHubScrip
     if (report.projects.length > 0) sections.push("## Details by project");
     for (const project of report.projects) {
       sections.push(
-        `<details>\n<summary>${project.path}</summary>\n\n${formatProjectMarkdown(project.markdown, project.path).slice(0, 12000)}\n\n</details>`,
+        `<details>\n<summary>${OUTCOME_ICONS[projectOutcome(project, decisions)]} ${project.path}</summary>\n\n${formatProjectMarkdown(project.markdown, project.path).slice(0, 12000)}\n\n</details>`,
       );
     }
   } catch (error) {
@@ -316,6 +318,7 @@ export default async function postResults({ github, context, core }: GitHubScrip
     for (const phase of PHASES) {
       decisions.set(phase, {
         state: "failure",
+        outcome: "failed",
         description: "Analysis/report failure; approvals cannot override.",
         requiresReview: false,
         fingerprint: "",
@@ -323,6 +326,7 @@ export default async function postResults({ github, context, core }: GitHubScrip
         approvals: 0,
       });
     }
+    sections.push(renderSummaryTable(decisions));
   }
   const { data: live } = await github.rest.pulls.get({ owner, repo, pull_number: number });
   if (live.head.sha !== pr.head.sha || live.base.sha !== pr.base.sha || live.state !== "open") {

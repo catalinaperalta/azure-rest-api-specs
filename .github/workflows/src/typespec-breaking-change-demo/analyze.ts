@@ -10,6 +10,7 @@ import {
   evaluatePhase,
   formatProjectMarkdown,
   LABELS,
+  OUTCOME_ICONS,
   PHASE_NAMES,
   PHASES,
   REPORT_NAME,
@@ -278,7 +279,7 @@ export async function analyze(
     `Tool revision: \`${UPSTREAM_SHA}\``,
     ...PHASES.map((phase) => {
       const decision = evaluatePhase(report, phase, false, false);
-      return `- ${LABELS[phase].check} (${PHASE_NAMES[phase].toLowerCase()}): **${decision.state}** - ${decision.description}`;
+      return `- ${OUTCOME_ICONS[decision.outcome]} ${LABELS[phase].check} (${PHASE_NAMES[phase].toLowerCase()}): **${decision.state}** - ${decision.description}`;
     }),
     ...report.failures.map(
       (failure) => `Analysis failure in \`${failure.path}\`: ${failure.message}`,

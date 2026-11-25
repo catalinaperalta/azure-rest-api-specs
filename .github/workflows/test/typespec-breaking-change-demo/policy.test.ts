@@ -5,7 +5,12 @@ import {
   LABELS,
   parseReport,
   phaseFingerprint,
+  projectOutcome,
+  renderPhaseSection,
+  renderSummaryTable,
   UPSTREAM_SHA,
+  type Decision,
+  type Phase,
   type Report,
 } from "../../src/typespec-breaking-change-demo/policy.ts";
 
@@ -40,6 +45,39 @@ function report(): Report {
 }
 
 describe("TypeSpec demo approval policy", () => {
+  it("classifies outcomes and renders icons that follow applied labels", () => {
+    const clean = report();
+    clean.projects[0].findings = [];
+    const failed = evaluatePhase(report(), "cross-version", false, false);
+    const approved = evaluatePhase(report(), "cross-version", false, true);
+    const none = evaluatePhase(clean, "cross-version", false, false);
+    expect([failed.outcome, approved.outcome, none.outcome]).toEqual([
+      "failed",
+      "approved",
+      "clean",
+    ]);
+
+    const decisions = new Map<Phase, Decision>([
+      ["same-version", evaluatePhase(report(), "same-version", false, false)],
+      ["cross-version", failed],
+    ]);
+    const summary = renderSummaryTable(decisions);
+    expect(summary).toContain(`| ⚪ | ${LABELS["same-version"].check} |`);
+    expect(summary).toContain(`| ❌ | ${LABELS["cross-version"].check} |`);
+    expect(projectOutcome(report().projects[0], decisions)).toBe("failed");
+
+    const bugfix = LABELS["cross-version"].bugfix;
+    const unlabeled = renderPhaseSection("cross-version", failed, new Set());
+    expect(unlabeled).toMatch(/^## ❌ /);
+    expect(unlabeled).toContain(`⬜ Bugfix exception: \`${bugfix}\``);
+    const labeled = renderPhaseSection("cross-version", approved, new Set([bugfix]));
+    expect(labeled).toMatch(/^## ✅ /);
+    expect(labeled).toContain(`✅ Bugfix exception: \`${bugfix}\``);
+    expect(labeled).toContain("**applied**");
+    decisions.set("cross-version", approved);
+    expect(projectOutcome(report().projects[0], decisions)).toBe("approved");
+  });
+
   it("regular approval cannot override an undecorated finding, but bugfix can", () => {
     expect(evaluatePhase(report(), "cross-version", true, false).state).toBe("failure");
     expect(evaluatePhase(report(), "cross-version", false, true).state).toBe("success");
