@@ -1,0 +1,34 @@
+openapi: 3.0.0
+info:
+  title: Contoso breaking change peer
+  description: Independent fixture for multi-project report aggregation.
+  version: 2026-06-01-preview
+tags: []
+paths:
+  /peer:
+    get:
+      operationId: read
+      description: Reads the independent peer representation.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+security:
+  - ApiKeyAuth: []
+components:
+  schemas:
+    Versions:
+      type: string
+      enum:
+        - 2026-01-01-preview
+        - 2026-06-01-preview
+      description: Supported fixture versions.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+servers:
+  - url: https://example.com
+    description: Non-shipping compatibility fixture.
+    variables: {}

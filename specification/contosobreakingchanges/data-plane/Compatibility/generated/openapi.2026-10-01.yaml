@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  title: Contoso breaking change demo
+  description: Non-shipping HTTP compatibility test service.
+  version: '2026-10-01'
+tags: []
+paths:
+  /widget-copy/{widgetId}:
+    get:
+      operationId: readCopy
+      description: Reads a second representation sharing the same named response model.
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          description: Identifier of the widget to read.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful widget response with explicit HTTP metadata.
+          headers:
+            x-service-revision:
+              required: true
+              description: Service revision returned to callers.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetOutput'
+  /widgets:
+    post:
+      operationId: create
+      description: Creates a widget using an independently modeled request.
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Limits the number of related items.
+          schema:
+            type: integer
+            format: int32
+          explode: false
+        - name: x-feature
+          in: header
+          required: false
+          description: Identifies an optional caller feature.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful widget response with explicit HTTP metadata.
+          headers:
+            x-service-revision:
+              required: true
+              description: Service revision returned to callers.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetOutput'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetInput'
+        description: Widget creation parameters.
+  /widgets/{widgetId}:
+    get:
+      operationId: read
+      description: Reads a widget by its stable identifier.
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          description: Identifier of the widget to read.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful widget response with explicit HTTP metadata.
+          headers:
+            x-service-revision:
+              required: true
+              description: Service revision returned to callers.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetOutput'
+security:
+  - ApiKeyAuth: []
+components:
+  schemas:
+    Versions:
+      type: string
+      enum:
+        - '2026-01-01'
+        - '2026-06-01'
+        - 2026-08-01-preview
+        - 2026-09-01-preview
+        - '2026-10-01'
+      description: API versions retained by the compatibility fixture.
+    WidgetInput:
+      type: object
+      required:
+        - name
+        - mode
+      properties:
+        name:
+          type: string
+          description: Human-readable widget name.
+        mode:
+          type: string
+          enum:
+            - fast
+            - safe
+          description: Requested processing mode.
+        note:
+          type: string
+          description: Optional caller note.
+      description: Parameters accepted only in requests.
+    WidgetOutput:
+      type: object
+      required:
+        - name
+        - status
+        - legacy
+      properties:
+        name:
+          type: string
+          description: Human-readable widget name.
+        status:
+          type: string
+          enum:
+            - ready
+            - pending
+          description: Status guaranteed by the response contract.
+        legacy:
+          type: string
+          description: Retained legacy field used by approval lifecycle tests.
+      description: Body returned only in responses.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+servers:
+  - url: https://example.com
+    description: Non-shipping compatibility fixture.
+    variables: {}
